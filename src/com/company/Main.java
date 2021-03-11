@@ -6,6 +6,9 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-	// write your code here
+        String expressionText = "-155-3*(6+4)";
+        Evaluation myExpression = new Evaluation(expressionText);
+        int value = myExpression.evaluate();
+        System.out.println(value);
     }
 }

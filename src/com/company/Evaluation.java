@@ -16,6 +16,9 @@ public class Evaluation{
     /** Хеш-таблица с функциями, которые могут быть вычислены*/
     public HashMap<String, Function> functionMap;
 
+    /** Поле для хранения лексем полученной строки*/
+    public LexemeContainer myLexemes;
+
     /**
      * Конструктор с входным параметром
      * @param expr - исходная строка
@@ -24,6 +27,147 @@ public class Evaluation{
     {
         expression = expr;
         pos = 0;
+        functionMap = getFunctionMap();
+    }
+
+    /**
+     * Метод, запускающий анализ выражения и его вычисления
+     * @return вычисленное значение выражения (если выражение корректное)
+     */
+    public int evaluate (){
+        List<Lexeme> lexemes = analysis();
+        myLexemes = new LexemeContainer(lexemes);
+        int result = evaluatedExpression();
+        return result;
+    }
+
+    /**
+     * Метод, получающий значение последнего действия в выражении
+     * @return вызывает метод для сложения и вычитания
+     */
+    public int evaluatedExpression() {
+        Lexeme lexeme = myLexemes.next();
+        if (lexeme.type == LexemeType.EOF) {
+            return 0;
+        } else {
+            myLexemes.back();
+            return plusminus();
+        }
+    }
+
+    /**
+     * Метод сложения и вычитания готовых слагаемых. В случае когда слагаемое необходимо вычислить,
+     * вызывается метод для вычисления произведения и частного, т.к. в качестве слагаемых могут
+     * выступать либо числа, либо целые множители
+     */
+    public int plusminus() {
+        int value = multdiv();
+        while (true) {
+            Lexeme lexeme = myLexemes.next();
+            switch (lexeme.type) {
+                case OP_PLUS:
+                    value += multdiv();
+                    break;
+                case OP_MINUS:
+                    value -= multdiv();
+                    break;
+                case EOF:
+                case RIGHT_BRACKET:
+                case COMMA:
+                    myLexemes.back();
+                    return value;
+                default:
+                    throw new RuntimeException("Unexpected token: " + lexeme.value
+                            + " at position: " + myLexemes.getPos());
+            }
+        }
+    }
+
+    /**
+     * Метод до вычисления произведения и частного
+     */
+    public int multdiv() {
+        int value = multiplier();
+        while (true) {
+            Lexeme lexeme = myLexemes.next();
+            switch (lexeme.type) {
+                case OP_MUL:
+                    value *= multiplier();
+                    break;
+                case OP_DIV:
+                    value /= multiplier();
+                    break;
+                case EOF:
+                case RIGHT_BRACKET:
+                case COMMA:
+                case OP_PLUS:
+                case OP_MINUS:
+                    myLexemes.back();
+                    return value;
+                default:
+                    throw new RuntimeException("Unexpected token: " + lexeme.value
+                            + " at position: " + myLexemes.getPos());
+            }
+        }
+    }
+
+    /**
+     *Метод получения множителя, адаптирован под работу с отрицательными часлами (т.е. применяется
+     * оператор "унарный минус"
+     */
+    public int multiplier() {
+        Lexeme lexeme = myLexemes.next();
+        switch (lexeme.type) {
+            case FUNCTION:
+                myLexemes.back();
+                return func();
+            case OP_MINUS:
+                int value = multiplier();
+                return -value;
+            case NUMBER:
+                return Integer.parseInt(lexeme.value);
+            case LEFT_BRACKET:
+                value = plusminus();
+                lexeme = myLexemes.next();
+                if (lexeme.type != LexemeType.RIGHT_BRACKET) {
+                    throw new RuntimeException("Unexpected token: " + lexeme.value
+                            + " at position: " + myLexemes.getPos());
+                }
+                return value;
+            default:
+                throw new RuntimeException("Unexpected token: " + lexeme.value
+                        + " at position: " + myLexemes.getPos());
+        }
+    }
+
+    /**
+     * Метод считывания аргументов функции и последующего вычисления ее значения
+     * (если функция допустимая)
+     */
+    public int func() {
+        String name = myLexemes.next().value;
+        Lexeme lexeme = myLexemes.next();
+
+        if (lexeme.type != LexemeType.LEFT_BRACKET) {
+            throw new RuntimeException("Wrong function call syntax at " + lexeme.value);
+        }
+
+        ArrayList<Integer> args = new ArrayList<>();
+
+        lexeme = myLexemes.next();
+        if (lexeme.type != LexemeType.RIGHT_BRACKET) {
+            myLexemes.back();
+            do {
+                args.add(evaluatedExpression());
+                lexeme = myLexemes.next();
+
+                if (lexeme.type != LexemeType.COMMA && lexeme.type != LexemeType.RIGHT_BRACKET) {
+                    throw new RuntimeException("Wrong function call syntax at " + lexeme.value);
+                }
+
+            } while (lexeme.type == LexemeType.COMMA);
+        }
+        return functionMap.get(name).apply(args);
     }
 
     /**
