@@ -1,4 +1,5 @@
-package com.company;
+package Classes;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.Scanner;
  * Класс, содержащий функционал для разбора строчного выражения на лексемы и последующего вычисления
  * @author Губина Алина
  */
+
+
 public class Evaluation{
     /** Поле, хранящее исходную строку с арифметическим выражением*/
     private String expression;
@@ -28,6 +31,7 @@ public class Evaluation{
         expression = expr;
         pos = 0;
         functionMap = getFunctionMap();
+
     }
 
     /**

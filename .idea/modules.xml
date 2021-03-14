@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Expression evaluation.iml" filepath="$PROJECT_DIR$/Expression evaluation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/mavpr/mavpr.iml" filepath="$PROJECT_DIR$/src/mavpr/mavpr.iml" />
     </modules>
   </component>
 </project>

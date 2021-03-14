@@ -1,4 +1,4 @@
-package com.company;
+package Classes;
 
 /**
  * Перечисление типов лексем:

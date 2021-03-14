@@ -1,4 +1,5 @@
-package com.company;
+package Classes;
+
 /**
  * Класс лексем
  */

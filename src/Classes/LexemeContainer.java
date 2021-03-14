@@ -1,4 +1,6 @@
-package com.company;
+package Classes;
+import Classes.Lexeme;
+
 import java.util.List;
 /**
  * Класс для работы с полученным массивом лексем
@@ -18,16 +20,23 @@ public class LexemeContainer {
     }
 
     /**
-     *
+     * Метод получения текущего элемента и передвижение позиции на следующий
      */
     public Lexeme next() {
         return lexemes.get(pos++);
     }
 
+    /**
+     * Метод передвигающий указатель на предыдущий элемент
+     */
     public void back() {
         pos--;
     }
 
+    /**
+     * Метод полуения текущей позиции
+     * @return позиция текущего элемента
+     */
     public int getPos() {
         return pos;
     }

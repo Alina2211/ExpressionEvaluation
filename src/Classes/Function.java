@@ -1,4 +1,4 @@
-package com.company;
+package Classes;
 import java.util.List;
 /**
  * Интерфейс, позволяющий вычислить значение функции
